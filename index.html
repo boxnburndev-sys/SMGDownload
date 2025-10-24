@@ -1,22 +1,240 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>SmartSchool App</title>
-  <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#0b5fff">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Eryndor Prime — Full Release</title>
+  <meta name="description" content="Eryndor Prime: deterministic ancient translator (English ↔ Eryndor). Single-file package for GitHub Pages." />
+  <style>
+    :root{
+      --bg:#071014; --card:#0d1416; --accent:#c9a45c; --muted:#97a6ad; --glass:rgba(255,255,255,0.03);
+    }
+    @import url('https://fonts.googleapis.com/css2?family=MedievalSharp&family=Signika:wght@300;600&display=swap');
+    *{box-sizing:border-box}
+    html,body{height:100%;margin:0;font-family:Signika,system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif;background:radial-gradient(1200px 600px at 10% 10%, rgba(201,164,92,0.04), transparent), linear-gradient(180deg,#061015 0%, #071014 100%);color:#e6eef2}
+    .wrap{max-width:1100px;margin:28px auto;padding:22px;border-radius:14px}
+    header{display:flex;gap:14px;align-items:center}
+    .logo{width:68px;height:68px;border-radius:14px;background:linear-gradient(135deg, rgba(201,164,92,0.14), rgba(255,255,255,0.02));display:flex;align-items:center;justify-content:center;font-size:34px}
+    h1{margin:0;font-family:'MedievalSharp',serif;font-size:28px;color:var(--accent)}
+    .subtitle{color:var(--muted);font-size:13px}
+    .main{display:grid;grid-template-columns:1fr 360px;gap:18px;margin-top:18px}
+    .card{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));padding:14px;border-radius:12px;border:1px solid rgba(255,255,255,0.03)}
+    textarea,input{width:100%;padding:12px;border-radius:8px;background:transparent;border:1px solid rgba(255,255,255,0.04);color:inherit}
+    .controls{display:flex;gap:8px;margin-top:10px}
+    button{background:var(--accent);border:0;padding:10px 12px;border-radius:10px;color:#081017;font-weight:700;cursor:pointer}
+    .ghost{background:transparent;border:1px solid rgba(255,255,255,0.04);color:var(--muted);font-weight:600}
+    .alpha-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin-top:8px}
+    .alpha-item{padding:8px;border-radius:8px;background:var(--glass);text-align:center}
+    .glyph{font-size:22px}
+    .dict-list{max-height:360px;overflow:auto;margin-top:8px;padding:6px;border-radius:8px;background:rgba(255,255,255,0.02)}
+    .dict-item{display:flex;justify-content:space-between;padding:8px;border-bottom:1px dashed rgba(255,255,255,0.02)}
+    .emoji-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:8px}
+    .emoji-btn{padding:8px;border-radius:8px;background:rgba(255,255,255,0.02);text-align:center;cursor:pointer}
+    footer{margin-top:14px;color:var(--muted);font-size:13px}
+    .small{font-size:13px;color:var(--muted)}
+    code{background:rgba(255,255,255,0.02);padding:2px 6px;border-radius:4px}
+  </style>
 </head>
-<body style="font-family:system-ui;text-align:center;padding-top:20vh">
-  <h1>SmartSchool Launcher</h1>
-  <p>Click below to open SmartSchool.<br>Then Edge will let you <b>Install</b> it as an app.</p>
-  <button id="open" style="background:#0b5fff;color:#fff;padding:10px 18px;border:0;border-radius:8px;font-size:16px;">Open SmartSchool</button>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="logo">🪶</div>
+      <div>
+        <h1>Eryndor Prime — Full Release</h1>
+        <div class="subtitle">Deterministic ancient secret language translator — single-file for GitHub Pages.</div>
+      </div>
+    </header>
 
-  <script>
-    if ('serviceWorker' in navigator) navigator.serviceWorker.register('service-worker.js');
-    document.getElementById('open').addEventListener('click', () => {
-      location.href = 'https://smg.smartschool.be';
-    });
-  </script>
+    <div class="main">
+      <main class="card">
+        <div class="small">INPUT</div>
+        <textarea id="input" placeholder="Type English, paste text, or insert emoji...">Meet me at the old quay tonight. Bring the key. Beyond life, we whisper.</textarea>
+
+        <div class="controls">
+          <button id="toE">Translate → Eryndor</button>
+          <button id="toEn" class="ghost">Translate ← English</button>
+          <button id="copyOut" class="ghost">Copy Output</button>
+          <button id="clear" class="ghost">Clear</button>
+        </div>
+
+        <div style="margin-top:12px" class="small">OUTPUT</div>
+        <textarea id="output" readonly></textarea>
+
+        <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap">
+          <button id="downloadHtml" class="ghost">Download index.html</button>
+          <button id="downloadJson" class="ghost">Download dictionary + generated map</button>
+        </div>
+
+        <section style="margin-top:14px">
+          <h3 style="margin:0 0 8px 0">How this release improves on earlier version</h3>
+          <div class="small">• Fully deterministic: unknown-word encoding and styling are seeded so identical input always produces identical Eryndor.  • Reverse translation uses a generated-map so unknown words round-trip where possible.  • No random sigils — every stylistic particle is derived from the input hash.</div>
+        </section>
+
+      </main>
+
+      <aside class="card">
+        <div class="small">DICTIONARY • Common words (English → Eryndor)</div>
+        <div class="dict-list" id="dictList"></div>
+
+        <div style="margin-top:12px" class="small">ALPHABET (rune pool preview)</div>
+        <div class="alpha-grid" id="alphaGrid"></div>
+
+        <div style="margin-top:12px" class="small">EMOJI KEY</div>
+        <div class="emoji-grid" id="emojiGrid"></div>
+
+        <div style="margin-top:12px" class="small">Deploy</div>
+        <div class="small">1) Create a GitHub repo. 2) Add this file <code>index.html</code> to the default branch. 3) Enable Pages to serve it. Your site will be available at <em>https://&lt;user&gt;.github.io/&lt;repo&gt;/</em>.</div>
+      </aside>
+    </div>
+
+    <footer>
+      <div class="small">Eryndor Prime — deterministic translator. Ask for Discord bot, custom font, or multi-file repo export next.</div>
+    </footer>
+  </div>
+
+<script>
+/* Eryndor Prime — Deterministic Full Release
+   - Unknown words -> deterministic rune sequence
+   - GENERATED_MAP stores rune->original word for reversible translation
+   - No randomness; all stylistic choices derived from djb2 hash
+*/
+
+const DICTIONARY = {
+  'meet':'ᛗᛖᛖᛏ','me':'ᛗᛖ','you':'ᛃᛟᚢ','i':'ᛁ','hello':'ᚺᛖᛚ~','hi':'ᚺᛁ',
+  'friend':'ᚠᚱᛖᚾᛞ','old':'ᛟᛚᛞ','quay':'ᛩᚢᚨ','tonight':'ᛏᛟᚾᛁᚷᚺᛏ','key':'ᚴᛖᛃ',
+  'beyond':'ᛒᛖᛃᛟᚾᛞ','life':'ᛚᛁᚠᛖ','whisper':'ᚹᚺᛁᛋᛈᛖᚱ','bring':'ᛒᚱᛁᚾᚷ',
+  'danger':'ᛞᚨᚾᚷᛖᚱ','hide':'ᚺᛁᛞᛖ','run':'ᚱᚢᚾ','go':'ᚷᛟ','stay':'ᛋᛏᚨᛃ',
+  'yes':'ᛃᛖᛋ','no':'ᚾᛟ','love':'ᛚᛟᚡᛖ','secret':'ᛋᛖᚲᚱᛖᛏ',
+  'ancient':'ᚨᚾᚲᛁᛖᚾᛏ','guide':'ᛃᚢᛁᛞᛖ','safe':'ᛋᚨᚠᛖ','mystery':'ᛗᛁᛋᛏᛖᚱᚣ',
+  'water':'ᚹᚨᛏᛖᚱ','fire':'ᚠᛁᚱᛖ','earth':'ᛖᚨᚱᚦ','air':'ᚨᛁᚱ'
+};
+
+const RUNE_POOL = [
+  'ᚠ','ᚢ','ᚦ','ᚨ','ᚱ','ᚲ','ᚷ','ᚹ','ᚺ','ᛁ','ᛃ','ᛇ','ᛈ','ᛉ','ᛋ','ᛏ','ᛒ','ᛖ','ᛚ','ᛗ','ᛝ','ᛟ','ᛞ','ᚩ','ᚪ','ᛆ',
+  '⟊','⟟','⟒','⟡','⟠','⟢','⟤','⟣','⋄','⁂','⸮','⟴','⸘','⸙','⸚','◈','◆','◇','✶','✦','✧'
+];
+
+const EMOJI = {
+  '🌑':'secret','🪶':'ancient','🗝️':'key','⚔️':'danger','🕊️':'peace','🔥':'danger','⚡':'fast','🧭':'guide','💠':'safe','🔮':'mystery','💫':'beyond-life','🌌':'mystic'
+};
+
+// GENERATED_MAP: rune -> original word for reversible translation
+const GENERATED_MAP_KEY = 'eryndor_generated_map_v1';
+let GENERATED_MAP = JSON.parse(localStorage.getItem(GENERATED_MAP_KEY) || '{}');
+
+function saveGeneratedMap(){ localStorage.setItem(GENERATED_MAP_KEY, JSON.stringify(GENERATED_MAP)); }
+
+// deterministic hash (djb2)
+function djb2(str){ let h=5381; for(let i=0;i<str.length;i++){h=((h<<5)+h)+str.charCodeAt(i); h=h&0xffffffff;} return Math.abs(h); }
+
+function lcg(seed){ return function(){ seed = (seed * 1664525 + 1013904223) & 0xffffffff; return seed; }; }
+
+function generateRuneForWord(word){
+  const key = word.toLowerCase();
+  // if already generated, return it
+  for (const r in GENERATED_MAP){ if (GENERATED_MAP[r] === key) return r; }
+
+  const seed = djb2(key);
+  const rnd = lcg(seed);
+  const L = Math.max(4, Math.min(10, Math.floor(key.length/1.1)+2));
+  const parts = [];
+  for (let i=0;i<L;i++){ const idx = rnd() % RUNE_POOL.length; parts.push(RUNE_POOL[idx]); }
+  // diacritic for double-letter
+  if (/([a-z])\1/i.test(key)) parts.push('⟡');
+  // capitalization mark if capitalized
+  if (word[0] && word[0] === word[0].toUpperCase()) parts.push('⁂');
+  const rune = parts.join('');
+  GENERATED_MAP[rune] = key; saveGeneratedMap();
+  return rune;
+}
+
+function tokenizePreserve(s){ return s.split(/(\s+|[\p{P}\p{S}]+)/u).filter(Boolean); }
+function isEmoji(tok){ if (EMOJI[tok]) return true; return /\p{Extended_Pictographic}/u.test(tok); }
+
+function translateToEryndor(text){ if (!text) return ''; const tokens = tokenizePreserve(text); const out=[];
+  for (let tok of tokens){
+    if (/^\s+$/.test(tok)){ out.push(tok); continue; }
+    if (isEmoji(tok)){ const meaning = EMOJI[tok] || 'mystery'; const rune = DICTIONARY[meaning] || generateRuneForWord(meaning); out.push(rune + '⟡'); continue; }
+    if (/^[\p{P}\p{S}]+$/u.test(tok)){ out.push(tok); continue; }
+    const cleaned = tok.replace(/[^\p{L}\p{N}'-]+/gu,'');
+    const lower = cleaned.toLowerCase();
+    if (DICTIONARY[lower]){ out.push(DICTIONARY[lower]); continue; }
+    const singular = lower.replace(/(s|es|ing|ed|ly)$/,'');
+    if (DICTIONARY[singular]){ out.push(DICTIONARY[singular]); continue; }
+    const rune = generateRuneForWord(cleaned || tok);
+    out.push(rune);
+  }
+  let phrase = out.join('');
+  phrase = deterministicGrammarFlavor(text, phrase);
+  return phrase;
+}
+
+function deterministicGrammarFlavor(original, runePhrase){
+  // deterministic sigil insertion based on hash of original sentence
+  const seed = djb2(original);
+  // if seed even, append end sigil
+  if ((seed % 2) === 0 && !runePhrase.endsWith('⋄')) runePhrase += '⋄';
+  // insert clause sigil before 'and'/'but'/'or' (literal english tokens) deterministically
+  runePhrase = runePhrase.replace(/and/gi, '⟡and⟡').replace(/but/gi, '⟡but⟡').replace(/or/gi, '⟡or⟡');
+  // adjective-noun inversion: find first short "adj noun" pair and swap if both have entries or generated runes
+  const eng = original.split(/(\s+)/);
+  for (let i=0;i<eng.length-2;i++){
+    const a = eng[i].trim().toLowerCase(); const b = eng[i+2] ? eng[i+2].trim().toLowerCase() : '';
+    if (!a||!b) continue; if (/^[a-z]{2,8}$/.test(a) && /^[a-z]{2,10}$/.test(b)){
+      const ra = DICTIONARY[a] || generateRuneForWord(a); const rb = DICTIONARY[b] || generateRuneForWord(b);
+      const combo = ra + rb; const swapped = rb + ra; runePhrase = runePhrase.replace(combo, swapped);
+      break; }
+  }
+  return runePhrase;
+}
+
+function translateToEnglish(runeText){ if (!runeText) return ''; let work = runeText;
+  // first reverse DICTIONARY (longest-first)
+  const pairs = Object.entries(DICTIONARY).sort((a,b)=>b[1].length - a[1].length);
+  for (const [en,ry] of pairs){ work = work.split(ry).join(en); }
+  // then try to detect generated runes by checking keys in GENERATED_MAP (longest-first)
+  const genPairs = Object.entries(GENERATED_MAP).sort((a,b)=>b[0].length - a[0].length);
+  for (const [ry,en] of genPairs){ work = work.split(ry).join(en); }
+  // remove particles
+  work = work.replace(/[⟡⁂⋄⟠]/g,' ');
+  // collapse multiple spaces
+  work = work.replace(/\s+/g,' ').trim();
+  return work;
+}
+
+// UI bindings
+const inputEl = document.getElementById('input'); const outputEl = document.getElementById('output');
+const toEBtn = document.getElementById('toE'); const toEnBtn = document.getElementById('toEn');
+const copyBtn = document.getElementById('copyOut'); const clearBtn = document.getElementById('clear');
+const dictListEl = document.getElementById('dictList'); const alphaGrid = document.getElementById('alphaGrid');
+const emojiGrid = document.getElementById('emojiGrid'); const downloadHtml = document.getElementById('downloadHtml');
+const downloadJson = document.getElementById('downloadJson');
+
+function refreshDictionaryUI(){ dictListEl.innerHTML=''; const keys = Object.keys(DICTIONARY).sort(); for(const k of keys){ const div=document.createElement('div'); div.className='dict-item'; div.innerHTML=`<div><strong>${k}</strong></div><div style="text-align:right">${DICTIONARY[k]}</div>`; dictListEl.appendChild(div);} }
+function refreshAlphaUI(){ alphaGrid.innerHTML=''; for(let i=0;i<Math.min(RUNE_POOL.length,30);i++){ const r=RUNE_POOL[i]; const d=document.createElement('div'); d.className='alpha-item'; d.innerHTML=`<div class="glyph">${r}</div><div class="small">${i}</div>`; alphaGrid.appendChild(d);} }
+function refreshEmojiUI(){ emojiGrid.innerHTML=''; for(const [em,mean] of Object.entries(EMOJI)){ const b=document.createElement('div'); b.className='emoji-btn'; b.innerHTML=`<div style="font-size:18px">${em}</div><div class="small">${mean}</div>`; b.onclick=()=>{ inputEl.value += ' ' + em; inputEl.focus(); }; emojiGrid.appendChild(b);} }
+
+refreshDictionaryUI(); refreshAlphaUI(); refreshEmojiUI();
+
+toEBtn.onclick = ()=>{ outputEl.value = translateToEryndor(inputEl.value); };
+toEnBtn.onclick = ()=>{ outputEl.value = translateToEnglish(inputEl.value); };
+copyBtn.onclick = ()=>{ navigator.clipboard.writeText(outputEl.value).then(()=>alert('Copied output to clipboard')); };
+clearBtn.onclick = ()=>{ inputEl.value=''; outputEl.value=''; };
+
+downloadHtml.onclick = ()=>{ const html = document.documentElement.outerHTML; const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([html],{type:'text/html'})); a.download='index.html'; document.body.appendChild(a); a.click(); a.remove(); };
+
+downloadJson.onclick = ()=>{
+  const exportObj = {dictionary:DICTIONARY,emoji:EMOJI,runes:RUNE_POOL,generated:GENERATED_MAP};
+  const json = JSON.stringify(exportObj,null,2);
+  const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([json],{type:'application/json'})); a.download='eryndor-package.json'; document.body.appendChild(a); a.click(); a.remove();
+};
+
+// keyboard shortcut
+inputEl.addEventListener('keydown',(e)=>{ if ((e.ctrlKey||e.metaKey) && e.key==='Enter'){ outputEl.value = translateToEryndor(inputEl.value); } });
+
+// expose for console
+window.Eryndor = {translateToEryndor,translateToEnglish,DICTIONARY,RUNE_POOL,EMOJI,GENERATED_MAP};
+
+</script>
 </body>
 </html>
